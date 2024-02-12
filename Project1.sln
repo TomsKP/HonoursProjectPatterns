@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34202.233
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Project1", "Project1\Project1.vcxproj", "{27A0D37D-4D2E-4484-AB3A-D8A08179F5B3}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BasicAddition", "Project1\Project1.vcxproj", "{27A0D37D-4D2E-4484-AB3A-D8A08179F5B3}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Project2", "Project2\Project2.vcxproj", "{E2947DE9-E94C-4E71-B028-A4289F6B523D}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BlackScholes", "Project2\Project2.vcxproj", "{E2947DE9-E94C-4E71-B028-A4289F6B523D}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MatrixMultiplication", "MatrixMultiplication\MatrixMultiplication.vcxproj", "{06B2B574-628C-46AC-B345-1A5148A413A0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,6 +33,14 @@ Global
 		{E2947DE9-E94C-4E71-B028-A4289F6B523D}.Release|x64.Build.0 = Release|x64
 		{E2947DE9-E94C-4E71-B028-A4289F6B523D}.Release|x86.ActiveCfg = Release|Win32
 		{E2947DE9-E94C-4E71-B028-A4289F6B523D}.Release|x86.Build.0 = Release|Win32
+		{06B2B574-628C-46AC-B345-1A5148A413A0}.Debug|x64.ActiveCfg = Debug|x64
+		{06B2B574-628C-46AC-B345-1A5148A413A0}.Debug|x64.Build.0 = Debug|x64
+		{06B2B574-628C-46AC-B345-1A5148A413A0}.Debug|x86.ActiveCfg = Debug|Win32
+		{06B2B574-628C-46AC-B345-1A5148A413A0}.Debug|x86.Build.0 = Debug|Win32
+		{06B2B574-628C-46AC-B345-1A5148A413A0}.Release|x64.ActiveCfg = Release|x64
+		{06B2B574-628C-46AC-B345-1A5148A413A0}.Release|x64.Build.0 = Release|x64
+		{06B2B574-628C-46AC-B345-1A5148A413A0}.Release|x86.ActiveCfg = Release|Win32
+		{06B2B574-628C-46AC-B345-1A5148A413A0}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
