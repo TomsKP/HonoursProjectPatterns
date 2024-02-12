@@ -329,8 +329,8 @@ int main(int argc, char** argv)
     }
 
     int tid = 0;
-    //pattern.parallelFor(1000, &calculatePrices, args);
-    bs_thread(&tid);
+    pattern.parallelFor(1000, &calculatePrices, args);
+    //bs_thread(&tid);
 
     //Write prices to output file
     file = fopen(outputFile, "w");
