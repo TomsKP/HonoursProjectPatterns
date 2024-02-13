@@ -3,5 +3,5 @@
 class parallelPatternFor {
 public:
 	
-	void parallelFor(int, void* (*function)(void*), int *arg);
+	void parallelFor(int, void* (*function)(void*));
 };

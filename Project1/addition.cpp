@@ -6,6 +6,11 @@ using namespace std;
 parallelPatternFor pattern;
 int args[8];
 
+struct argData {
+	int start;
+	int end;
+};
+
 int testArray[40];
 
 void* additionFunction(void* ptr);
@@ -19,7 +24,7 @@ int main() {
 		printf("%d \n", testArray[i]);
 	}
 
-	pattern.parallelFor(40, &additionFunction, args);
+	pattern.parallelFor(40, &additionFunction);
 
 	for (int i = 0; i < 40; i++) {
 		printf("%d \n", testArray[i]);
@@ -27,8 +32,10 @@ int main() {
 }
 
 void* additionFunction(void* ptr) {
-	int threadID = (int) ptr;
-	for (int i = args[threadID*2]; i < args[threadID*2+1]; i++) {
+	argData* args = (argData*) ptr;
+	int start = args->start;
+	int end = args->end;
+	for (int i = start; i < end; i++) {
 		testArray[i] = testArray[i] + 1;
 	}
 	return 0;

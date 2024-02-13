@@ -6,22 +6,28 @@
 
 using namespace std;
 
+struct argData {
+	int start;
+	int end;
+};
 
-void parallelPatternFor::parallelFor(int numData, void* (*func)(void*), int *arg)
+
+void parallelPatternFor::parallelFor(int numData, void* (*func)(void*))
 {
 	int numOptions = numData;
 	int optPer = numOptions / NUM_THREADS;
 	pthread_t Threads[NUM_THREADS];
+	argData arguments[NUM_THREADS];
 
 	for (int i = 0; i < NUM_THREADS-1; i++) {
-		arg[i * 2] = i * optPer;
-		arg[i*2+1] = (i + 1) * optPer;
-		int status = pthread_create(&Threads[i], NULL, func, (void*) i);
+		arguments[i].start = i * optPer;
+		arguments[i].end = (i + 1) * optPer;
+		int status = pthread_create(&Threads[i], NULL, func, (void*) &arguments[i]);
 		printf("Thread status: %d\n", status);
 	}
-	arg[(NUM_THREADS-1)*2] = (NUM_THREADS - 1) * optPer;
-	arg[((NUM_THREADS-1)*2)+1] = numOptions;
-	int status = pthread_create(&Threads[NUM_THREADS-1], NULL, func, (void*) (NUM_THREADS-1));
+	arguments[NUM_THREADS-1].start = (NUM_THREADS - 1) * optPer;
+	arguments[NUM_THREADS-1].end = numOptions;
+	int status = pthread_create(&Threads[NUM_THREADS-1], NULL, func, (void*) &arguments[NUM_THREADS-1]);
 	printf("Thread status: %d\n", status);
 
 	for (int i = 0; i < NUM_THREADS; i++) {

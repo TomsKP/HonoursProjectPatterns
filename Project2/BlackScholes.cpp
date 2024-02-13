@@ -45,8 +45,12 @@ fptype* otime;
 int numError = 0;
 int nThreads;
 
-int args[8];
 parallelPatternFor pattern;
+
+struct argData {
+    int start;
+    int end;
+};
 
 void* calculatePrices(void* ptr);
 
@@ -191,8 +195,10 @@ fptype BlkSchlsEqEuroNoDiv(fptype sptprice,
 //Added by Toms Popdjakuniks
 void* calculatePrices(void* ptr) {
     fptype price;
-    int threadID = (int)ptr;
-    for (int i = args[threadID * 2]; i < args[threadID * 2 + 1]; i++) {
+    argData* argument = (argData*)ptr;
+    int start = argument->start;
+    int end = argument->end;
+    for (int i = start; i < end; i++) {
         price = BlkSchlsEqEuroNoDiv(sptprice[i], strike[i],
             rate[i], volatility[i], otime[i],
             otype[i], 0);
@@ -329,7 +335,7 @@ int main(int argc, char** argv)
     }
 
     int tid = 0;
-    pattern.parallelFor(1000, &calculatePrices, args);
+    pattern.parallelFor(1000, &calculatePrices);
     //bs_thread(&tid);
 
     //Write prices to output file
