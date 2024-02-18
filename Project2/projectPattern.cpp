@@ -9,6 +9,8 @@ using namespace std;
 struct argData {
 	int start;
 	int end;
+	int row;
+	int threadCount;
 };
 
 
@@ -22,11 +24,14 @@ void parallelPatternFor::parallelFor(int numData, void* (*func)(void*))
 	for (int i = 0; i < NUM_THREADS-1; i++) {
 		arguments[i].start = i * optPer;
 		arguments[i].end = (i + 1) * optPer;
+		arguments[i].row = i;
+		arguments[i].threadCount = NUM_THREADS;
 		int status = pthread_create(&Threads[i], NULL, func, (void*) &arguments[i]);
 		printf("Thread status: %d\n", status);
 	}
 	arguments[NUM_THREADS-1].start = (NUM_THREADS - 1) * optPer;
 	arguments[NUM_THREADS-1].end = numOptions;
+	arguments[NUM_THREADS - 1].row = NUM_THREADS;
 	int status = pthread_create(&Threads[NUM_THREADS-1], NULL, func, (void*) &arguments[NUM_THREADS-1]);
 	printf("Thread status: %d\n", status);
 

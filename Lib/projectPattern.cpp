@@ -10,6 +10,7 @@ struct argData {
 	int start;
 	int end;
 	int row;
+	int threadCount;
 };
 
 
@@ -24,6 +25,7 @@ void parallelPatternFor::parallelFor(int numData, void* (*func)(void*))
 		arguments[i].start = i * optPer;
 		arguments[i].end = (i + 1) * optPer;
 		arguments[i].row = i;
+		arguments[i].threadCount = NUM_THREADS;
 		int status = pthread_create(&Threads[i], NULL, func, (void*) &arguments[i]);
 		printf("Thread status: %d\n", status);
 	}

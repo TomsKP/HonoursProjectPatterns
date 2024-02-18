@@ -9,6 +9,8 @@ int args[8];
 struct argData {
 	int start;
 	int end;
+	int row;
+	int threadCount;
 };
 
 int testArray[40];

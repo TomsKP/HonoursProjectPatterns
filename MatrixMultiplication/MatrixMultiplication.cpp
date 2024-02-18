@@ -14,6 +14,7 @@ struct argData {
     int start;
     int end;
     int row;
+    int threadCount;
 };
 
 
