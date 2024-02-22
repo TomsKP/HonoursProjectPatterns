@@ -13,6 +13,7 @@
 #include <math.h>
 #include <string.h>
 #include "projectPattern.h"
+#include "tbb/tbb.h"
 
 #define fptype float
 
@@ -194,6 +195,22 @@ fptype BlkSchlsEqEuroNoDiv(fptype sptprice,
     return OptionPrice;
 }
 
+
+//Ideas for this implementation came from: https://stackoverflow.com/questions/10607215/simplest-tbb-example and https://homepages.math.uic.edu/~jan/mcs572f16/mcs572notes/lec11.html
+//Still not 100% on the working behind it, but fairly confident I know how to use TBB at this extremely basic level
+class calculatePricesTBB {
+public:
+    void operator()(const tbb::blocked_range<int>& r) const {
+        fptype price;
+        for (int i = r.begin(); i < r.end(); i++) {
+            price = BlkSchlsEqEuroNoDiv(sptprice[i], strike[i],
+                rate[i], volatility[i], otime[i],
+                otype[i], 0);
+            prices[i] = price;
+        }
+    }
+};
+
 //Added by Toms Popdjakuniks
 void* calculatePrices(void* ptr) {
     fptype price;
@@ -337,8 +354,9 @@ int main(int argc, char** argv)
     }
 
     int tid = 0;
-    pattern.parallelFor(1000, &calculatePrices);
+    //pattern.parallelFor(1000, &calculatePrices);
     //bs_thread(&tid);
+    tbb::parallel_for(tbb::blocked_range<int>(0, 1000, 250), calculatePricesTBB());
 
     //Write prices to output file
     file = fopen(outputFile, "w");

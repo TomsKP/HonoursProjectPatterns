@@ -1,5 +1,6 @@
 #include <iostream>
 #include "projectPattern.h"
+#include "tbb/tbb.h"
 
 int matrix1[3][2] = { {1, 2},
                       {3, 4},
@@ -31,6 +32,22 @@ void* multiplyMatricesParallel(void* ptr) {
     return 0;
 }
 
+
+//Ideas for this implementation came from: https://stackoverflow.com/questions/10607215/simplest-tbb-example and https://homepages.math.uic.edu/~jan/mcs572f16/mcs572notes/lec11.html
+//Still not 100% on the working behind it, but fairly confident I know how to use TBB at this extremely basic level
+class MatrixMultiplierTBB {
+public:
+    void operator()(const tbb::blocked_range<int>& r) const {
+        for (int row = r.begin(); row != r.end(); row++) {
+            for (int i = 0; i < 2; i++) {
+                for (int j = 0; j < 2; j++) {
+                    resultMatrix[row][i] += matrix1[row][j] * matrix2[j][i];
+                }
+            }
+        }
+    }
+};
+
 void multiplyMatrices(int mat1[3][2], int mat2[2][2], int result[3][2]) {
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 2; j++) {
@@ -46,7 +63,8 @@ int main() {
 
 
     //multiplyMatrices(matrix1, matrix2, resultMatrix);
-    parallel.parallelFor(10, multiplyMatricesParallel);
+    //parallel.parallelFor(10, multiplyMatricesParallel);
+    tbb::parallel_for(tbb::blocked_range<int>(0, 3), MatrixMultiplierTBB());
 
 
     std::cout << "Resultant Matrix:\n";
