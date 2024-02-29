@@ -15,9 +15,14 @@
 #include "projectPattern.h"
 #include "tbb/tbb.h"
 
+#include <chrono>
+#include <iostream>
+
 #define fptype float
 
-#define NUM_RUNS 100
+#define NUM_RUNS 200000
+
+using namespace std::chrono;
 
 typedef struct OptionData_ {
     fptype s;          // spot price
@@ -202,11 +207,13 @@ class calculatePricesTBB {
 public:
     void operator()(const tbb::blocked_range<int>& r) const {
         fptype price;
-        for (int i = r.begin(); i < r.end(); i++) {
-            price = BlkSchlsEqEuroNoDiv(sptprice[i], strike[i],
-                rate[i], volatility[i], otime[i],
-                otype[i], 0);
-            prices[i] = price;
+        for (int j = 0; j < NUM_RUNS; j++) {
+            for (int i = r.begin(); i < r.end(); i++) {
+                price = BlkSchlsEqEuroNoDiv(sptprice[i], strike[i],
+                    rate[i], volatility[i], otime[i],
+                    otype[i], 0);
+                prices[i] = price;
+            }
         }
     }
 };
@@ -217,11 +224,13 @@ void* calculatePrices(void* ptr) {
     argData* argument = (argData*)ptr;
     int start = argument->start;
     int end = argument->end;
-    for (int i = start; i < end; i++) {
-        price = BlkSchlsEqEuroNoDiv(sptprice[i], strike[i],
-            rate[i], volatility[i], otime[i],
-            otype[i], 0);
-        prices[i] = price;
+    for (int j = 0; j < NUM_RUNS; j++) {
+        for (int i = start; i < end; i++) {
+            price = BlkSchlsEqEuroNoDiv(sptprice[i], strike[i],
+                rate[i], volatility[i], otime[i],
+                otype[i], 0);
+            prices[i] = price;
+        }
     }
     return 0;
 }
@@ -354,9 +363,13 @@ int main(int argc, char** argv)
     }
 
     int tid = 0;
-    //pattern.parallelFor(1000, &calculatePrices);
+    auto start = high_resolution_clock::now();
+    pattern.parallelFor(1000, &calculatePrices);
     //bs_thread(&tid);
-    tbb::parallel_for(tbb::blocked_range<int>(0, 1000, 250), calculatePricesTBB());
+    //tbb::parallel_for(tbb::blocked_range<int>(0, 1000, 250), calculatePricesTBB());
+    auto stop = high_resolution_clock::now();
+    auto duration = duration_cast<seconds>(stop - start);
+    std::cout << duration.count() << std::endl;
 
     //Write prices to output file
     file = fopen(outputFile, "w");
