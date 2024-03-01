@@ -62,7 +62,6 @@ parallelPatternFor pattern;
 struct argData {
     int start;
     int end;
-    int row;
     int thradCount;
 };
 
