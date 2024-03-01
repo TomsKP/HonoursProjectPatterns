@@ -13,10 +13,16 @@
 #include <math.h>
 #include <string.h>
 #include "projectPattern.h"
-#include "tbb/tbb.h"
+
 
 #include <chrono>
 #include <iostream>
+
+
+//Include TBB library
+#ifdef TBB
+#include "tbb/tbb.h"
+#endif
 
 #define fptype float
 
@@ -203,6 +209,7 @@ fptype BlkSchlsEqEuroNoDiv(fptype sptprice,
 
 //Ideas for this implementation came from: https://stackoverflow.com/questions/10607215/simplest-tbb-example and https://homepages.math.uic.edu/~jan/mcs572f16/mcs572notes/lec11.html
 //Still not 100% on the working behind it, but fairly confident I know how to use TBB at this extremely basic level
+#ifdef TBB
 class calculatePricesTBB {
 public:
     void operator()(const tbb::blocked_range<int>& r) const {
@@ -217,6 +224,7 @@ public:
         }
     }
 };
+#endif
 
 //Added by Toms Popdjakuniks
 void* calculatePrices(void* ptr) {
@@ -364,9 +372,19 @@ int main(int argc, char** argv)
 
     int tid = 0;
     auto start = high_resolution_clock::now();
-    pattern.parallelFor(1000, &calculatePrices);
-    //bs_thread(&tid);
-    //tbb::parallel_for(tbb::blocked_range<int>(0, 1000, 250), calculatePricesTBB());
+    
+    #ifdef TBB
+        tbb::parallel_for(tbb::blocked_range<int>(0, 1000, 250), calculatePricesTBB());
+    #else
+    #ifdef PARALLEL
+        pattern.parallelFor(1000, &calculatePrices);
+    #else
+        bs_thread(&tid);
+    #endif //PARALLEL
+    #endif //TBB
+
+
+    
     auto stop = high_resolution_clock::now();
     auto duration = duration_cast<seconds>(stop - start);
     std::cout << duration.count() << std::endl;
