@@ -130,11 +130,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\Lib\projectPattern.cpp" />
     <ClCompile Include="MatrixMultiplication.cpp" />
-    <ClCompile Include="projectPattern.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="projectPattern.h" />
+    <ClInclude Include="..\Lib\projectPattern.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
