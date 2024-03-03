@@ -2,7 +2,7 @@
 #include "projectPattern.h"
 #include "pthread.h"
 
-#define NUM_THREADS 4
+#define NUM_THREADS 3
 
 using namespace std;
 

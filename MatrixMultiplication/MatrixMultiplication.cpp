@@ -14,7 +14,6 @@ int resultMatrix[3][2];
 struct argData {
     int start;
     int end;
-    int row;
     int threadCount;
 };
 
@@ -23,10 +22,13 @@ void* multiplyMatricesParallel(void* ptr);
 
 void* multiplyMatricesParallel(void* ptr) {
     argData* argument = (argData*)ptr;
-    int row = argument->row;
-    for (int i = 0; i < 2; i++) {
+    int row = argument->start;
+    int endRow = argument->end;
+    for (row; row < endRow; row++) {
         for (int j = 0; j < 2; j++) {
-            resultMatrix[row][i] += matrix1[row][j] * matrix2[j][i];
+            for (int k = 0; k < 2; k++) {
+                resultMatrix[row][j] += matrix1[row][k] * matrix2[k][j];
+            }
         }
     }
     return 0;
@@ -63,8 +65,8 @@ int main() {
 
 
     //multiplyMatrices(matrix1, matrix2, resultMatrix);
-    //parallel.parallelFor(10, multiplyMatricesParallel);
-    tbb::parallel_for(tbb::blocked_range<int>(0, 3), MatrixMultiplierTBB());
+    parallel.parallelFor2D(3, multiplyMatricesParallel);
+    //tbb::parallel_for(tbb::blocked_range<int>(0, 3), MatrixMultiplierTBB());
 
 
     std::cout << "Resultant Matrix:\n";

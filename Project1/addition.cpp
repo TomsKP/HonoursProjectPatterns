@@ -11,7 +11,6 @@ int testArray[40];
 struct argData {
 	int start;
 	int end;
-	int row;
 	int threadCount;
 };
 
