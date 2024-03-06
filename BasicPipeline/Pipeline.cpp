@@ -1,4 +1,6 @@
 #include <iostream>
+#include "projectPattern.h"
+
 using namespace std;
 
 int startArray[10] = { 1,2,3,4,5,6,7,8,9,10 };
@@ -26,10 +28,11 @@ void printArray(){
 
 int main() {
 	
-	printArray();
+	/*printArray();
 	function1();
 	printArray();
 	function2();
-	printArray();
+	printArray();*/
+	
 	return 0;
 }

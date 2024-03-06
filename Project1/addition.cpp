@@ -4,7 +4,7 @@
 #include "tbb/tbb.h"
 
 using namespace std;
-parallelPatternFor pattern;
+parallelPatterns pattern;
 int args[8];
 int testArray[40];
 

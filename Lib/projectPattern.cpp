@@ -13,7 +13,7 @@ struct argData {
 };
 
 
-void parallelPatternFor::parallelFor(int numItems, void* (*func)(void*))
+void parallelPatterns::parallelFor(int numItems, void* (*func)(void*))
 {
 	int numOptions = numItems;
 	int optPer = numOptions / NUM_THREADS;
@@ -37,7 +37,7 @@ void parallelPatternFor::parallelFor(int numItems, void* (*func)(void*))
 	}
 }
 
-void parallelPatternFor::parallelFor2D(int numRows, void* (*func)(void*))
+void parallelPatterns::parallelFor2D(int numRows, void* (*func)(void*))
 {
 	int rows = numRows;
 	int rowsPer = rows / NUM_THREADS;
@@ -55,6 +55,19 @@ void parallelPatternFor::parallelFor2D(int numRows, void* (*func)(void*))
 	arguments[NUM_THREADS - 1].end = rows;
 	int status = pthread_create(&Threads[NUM_THREADS - 1], NULL, func, (void*)&arguments[NUM_THREADS - 1]);
 	printf("Thread status: %d\n", status);
+
+	for (int i = 0; i < NUM_THREADS; i++) {
+		pthread_join(Threads[i], NULL);
+	}
+}
+
+void parallelPatterns::pipelineInit(void* (*func[])(void*)) 
+{
+	int functionCount = NUM_THREADS;
+	pthread_t Threads[NUM_THREADS];
+	for (int i = 0; i < functionCount; i++) {
+		pthread_create(&Threads[i], NULL, func[i], NULL);
+	}
 
 	for (int i = 0; i < NUM_THREADS; i++) {
 		pthread_join(Threads[i], NULL);

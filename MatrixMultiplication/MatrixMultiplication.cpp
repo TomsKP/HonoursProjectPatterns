@@ -61,7 +61,7 @@ void multiplyMatrices(int mat1[3][2], int mat2[2][2], int result[3][2]) {
 }
 
 int main() {
-    parallelPatternFor parallel;
+    parallelPatterns parallel;
 
 
     //multiplyMatrices(matrix1, matrix2, resultMatrix);

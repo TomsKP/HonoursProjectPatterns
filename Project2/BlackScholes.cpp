@@ -57,7 +57,7 @@ fptype* otime;
 int numError = 0;
 int nThreads;
 
-parallelPatternFor pattern;
+parallelPatterns pattern;
 
 struct argData {
     int start;
