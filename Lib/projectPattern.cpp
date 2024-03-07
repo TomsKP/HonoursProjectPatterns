@@ -2,6 +2,8 @@
 #include "projectPattern.h"
 #include "pthread.h"
 
+#include <queue>
+
 #define NUM_THREADS 3
 
 using namespace std;
@@ -11,6 +13,14 @@ struct argData {
 	int end;
 	int threadCount;
 };
+
+//struct pipelineArgs {
+//	pthread_mutex_t lock;
+//	pthread_cond_t cond;
+//	queue<int> input;
+//	queue<int> output;
+//};
+
 
 
 void parallelPatterns::parallelFor(int numItems, void* (*func)(void*))
@@ -65,7 +75,14 @@ void parallelPatterns::pipelineInit(void* (*func[])(void*))
 {
 	int functionCount = NUM_THREADS;
 	pthread_t Threads[NUM_THREADS];
+	//pipelineArgs args[NUM_THREADS];
 	for (int i = 0; i < functionCount; i++) {
+		/*queue<int> input;
+		queue<int> output;
+		args[i].input = input;
+		args[i].output = output;
+		args[i].cond = PTHREAD_COND_INITIALIZER;
+		args[i].lock = PTHREAD_MUTEX_INITIALIZER;*/
 		pthread_create(&Threads[i], NULL, func[i], NULL);
 	}
 
