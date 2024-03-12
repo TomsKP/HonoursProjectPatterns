@@ -50,12 +50,6 @@ void* function2(void* arg) {
 
 void* function3(void* arg) {
 	for (int i = 0; i < 10; i++) {
-		if (stage2output.empty()) {
-			pthread_cond_wait(&mutex_stage2output_cond, &mutex_stage2output_lock);
-		}
-		int data = stage2output.front();
-		stage2output.pop();
-		pthread_mutex_unlock(&mutex_stage2output_lock);*/
 		int data = ReadFromQueue(stage2output, mutex_stage2output_lock, mutex_stage2output_cond);
 		endArray[i] = data + 1;
 	}
