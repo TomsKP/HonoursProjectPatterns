@@ -1,8 +1,10 @@
 #include <iostream>
-#include "projectPattern.h"
 #include "pthread.h"
-
 #include <queue>
+#include "projectPattern.h"
+
+
+
 
 #define NUM_THREADS 3
 
@@ -89,4 +91,22 @@ void parallelPatterns::pipelineInit(void* (*func[])(void*))
 	for (int i = 0; i < NUM_THREADS; i++) {
 		pthread_join(Threads[i], NULL);
 	}
+}
+
+void parallelPatterns::WriteToQueue(int data, queue<int> &outputQueue, pthread_mutex_t &lock, pthread_cond_t &cond) {
+	pthread_mutex_lock(&lock);
+	outputQueue.push(data);
+	pthread_mutex_unlock(&lock);
+	pthread_cond_signal(&cond);
+}
+
+int parallelPatterns::ReadFromQueue(queue<int> &inputQueue, pthread_mutex_t &lock, pthread_cond_t &cond) {
+	pthread_mutex_lock(&lock);
+	if (inputQueue.empty()) {
+		pthread_cond_wait(&cond, &lock);
+	}
+	int data = inputQueue.front();
+	inputQueue.pop();
+	pthread_mutex_unlock(&lock);
+	return data;
 }

@@ -9,8 +9,7 @@ using namespace std;
 queue<int> stage1output;
 queue<int> stage2output;
 
-void WriteToQueue(int data, queue<int>& outputQueue, pthread_mutex_t& lock, pthread_cond_t& cond);
-int ReadFromQueue(queue<int>& inputQueue, pthread_mutex_t& lock, pthread_cond_t& cond);
+
 
 
 //struct pipelineArgs {
@@ -35,22 +34,22 @@ int endArray[10];
 void* function1(void* arg){
 	//pipelineArgs* arguments = (pipelineArgs*) arg;
 	for (int i = 0; i < 10; i++) {
-		WriteToQueue(startArray[i]+1, stage1output, mutex_stage1output_lock, mutex_stage1output_cond);
+		pattern.WriteToQueue(startArray[i]+1, stage1output, mutex_stage1output_lock, mutex_stage1output_cond);
 	}
 	return 0;
 }
 
 void* function2(void* arg) {
 	for (int i = 0; i < 10; i++) {
-		int data = ReadFromQueue(stage1output, mutex_stage1output_lock, mutex_stage1output_cond);
-		WriteToQueue(data * 2, stage2output, mutex_stage2output_lock, mutex_stage2output_cond);
+		int data = pattern.ReadFromQueue(stage1output, mutex_stage1output_lock, mutex_stage1output_cond);
+		pattern.WriteToQueue(data * 2, stage2output, mutex_stage2output_lock, mutex_stage2output_cond);
 	}
 	return 0;
 }
 
 void* function3(void* arg) {
 	for (int i = 0; i < 10; i++) {
-		int data = ReadFromQueue(stage2output, mutex_stage2output_lock, mutex_stage2output_cond);
+		int data = pattern.ReadFromQueue(stage2output, mutex_stage2output_lock, mutex_stage2output_cond);
 		endArray[i] = data + 1;
 	}
 	return 0;
@@ -63,23 +62,9 @@ void printArray(){
 	cout << endl;
 }
 
-void WriteToQueue(int data, queue<int> &outputQueue, pthread_mutex_t &lock, pthread_cond_t &cond) {
-	pthread_mutex_lock(&lock);
-	outputQueue.push(data);
-	pthread_mutex_unlock(&lock);
-	pthread_cond_signal(&cond);
-}
 
-int ReadFromQueue(queue<int> &inputQueue, pthread_mutex_t &lock, pthread_cond_t &cond) {
-	pthread_mutex_lock(&lock);
-	if (inputQueue.empty()) {
-		pthread_cond_wait(&cond, &lock);
-	}
-	int data = inputQueue.front();
-	inputQueue.pop();
-	pthread_mutex_unlock(&lock);
-	return data;
-}
+
+
 
 int main() {
 	void* (*funcs[])(void*) = {function1, function2, function3};
