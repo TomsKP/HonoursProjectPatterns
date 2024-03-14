@@ -16,12 +16,20 @@ struct argData {
 	int threadCount;
 };
 
-//struct pipelineArgs {
-//	pthread_mutex_t lock;
-//	pthread_cond_t cond;
-//	queue<int> input;
-//	queue<int> output;
-//};
+struct pipelineArgs {
+	pthread_mutex_t inputLock;
+	pthread_cond_t inputCond;
+	pthread_mutex_t outputLock;
+	pthread_cond_t outputCond;
+	queue<int> input;
+	queue<int> output;
+	queue<int>* inputptr;
+	int (*func)(int);
+	int length;
+	bool finished = false;
+};
+
+void* pipelineStage(void* ptr);
 
 
 
@@ -73,24 +81,81 @@ void parallelPatterns::parallelFor2D(int numRows, void* (*func)(void*))
 	}
 }
 
-void parallelPatterns::pipelineInit(void* (*func[])(void*)) 
+void parallelPatterns::pipelineInit(void* (*func[])(void*))
 {
 	int functionCount = NUM_THREADS;
 	pthread_t Threads[NUM_THREADS];
-	//pipelineArgs args[NUM_THREADS];
 	for (int i = 0; i < functionCount; i++) {
-		/*queue<int> input;
-		queue<int> output;
-		args[i].input = input;
-		args[i].output = output;
-		args[i].cond = PTHREAD_COND_INITIALIZER;
-		args[i].lock = PTHREAD_MUTEX_INITIALIZER;*/
 		pthread_create(&Threads[i], NULL, func[i], NULL);
 	}
 
 	for (int i = 0; i < NUM_THREADS; i++) {
 		pthread_join(Threads[i], NULL);
 	}
+}
+
+void parallelPatterns::pipelineMain(int (*func[])(int), queue<int> &start, queue<int> &finalQueue, int length) {
+	pthread_t Threads[NUM_THREADS];
+	parallelPatterns pattern;
+	queue<int> originalQueue = start;
+	int queueSize = length;
+	pipelineArgs args[3];
+
+	for (int i = 0; i < NUM_THREADS; i++) {
+		if (i == 0) {
+			args[i].input = originalQueue;
+			args[i].length = queueSize;
+			args[i].inputptr = &args[i].input;
+			args[i + 1].inputptr = &args[i].output;
+			pthread_mutex_init(&args[i].inputLock, NULL);
+			pthread_mutex_init(&args[i].outputLock, NULL);
+			pthread_cond_init(&args[i].inputCond, NULL);
+			pthread_cond_init(&args[i].outputCond, NULL);
+			args[i + 1].inputLock = args[i].outputLock;
+			args[i + 1].inputCond = args[i].outputCond;
+		}
+		else if (i == (NUM_THREADS - 1)) {
+			args[i].length = queueSize;
+			args[i].output = finalQueue;
+			pthread_mutex_init(&args[i].outputLock, NULL);
+			pthread_cond_init(&args[i].outputCond, NULL);
+		}
+		else {
+			args[i + 1].inputptr = &args[i].output;
+			args[i].length = queueSize;
+			pthread_mutex_init(&args[i].outputLock, NULL);
+			pthread_cond_init(&args[i].outputCond, NULL);
+			args[i + 1].inputLock = args[i].outputLock;
+			args[i + 1].inputCond = args[i].outputCond;
+		}
+		args[i].func = func[i];
+	}
+
+	for (int i = 0; i < 3; i++) {
+		pthread_create(&Threads[i], NULL, pipelineStage, (void*)&args[i]);
+	}
+
+	for (int i = 0; i < 3; i++) {
+		pthread_join(Threads[i], NULL);
+	}
+
+	for (int i = 0; i < length; i++) {
+		cout << args[NUM_THREADS-1].output.front() << " " << endl;
+		args[NUM_THREADS-1].output.pop();
+	}
+}
+
+
+void* pipelineStage(void* ptr) {
+	pipelineArgs* args = (pipelineArgs*)ptr;
+	queue<int>& input = *args->inputptr;
+	parallelPatterns pattern;
+	for (int i = 0; i < args->length; i++) {
+		int data = pattern.ReadFromQueue(args->inputptr , args->inputLock, args->inputCond);
+		int result = args->func(data);
+		pattern.WriteToQueue(result, args->output, args->outputLock, args->outputCond);
+	}
+	return 0;
 }
 
 void parallelPatterns::WriteToQueue(int data, queue<int> &outputQueue, pthread_mutex_t &lock, pthread_cond_t &cond) {
@@ -100,13 +165,15 @@ void parallelPatterns::WriteToQueue(int data, queue<int> &outputQueue, pthread_m
 	pthread_cond_signal(&cond);
 }
 
-int parallelPatterns::ReadFromQueue(queue<int> &inputQueue, pthread_mutex_t &lock, pthread_cond_t &cond) {
+
+int parallelPatterns::ReadFromQueue(queue<int>* inputQueue, pthread_mutex_t &lock, pthread_cond_t &cond) {
+	queue<int>& queue = *inputQueue;
 	pthread_mutex_lock(&lock);
-	if (inputQueue.empty()) {
+	if (queue.empty()) {
 		pthread_cond_wait(&cond, &lock);
 	}
-	int data = inputQueue.front();
-	inputQueue.pop();
+	int data = queue.front();
+	queue.pop();
 	pthread_mutex_unlock(&lock);
 	return data;
 }
