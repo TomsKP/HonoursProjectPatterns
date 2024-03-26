@@ -9,6 +9,12 @@ int matrix1[3][2] = { {1, 2},
 int matrix2[2][2] = { {7, 8},
                       {9, 10} };
 
+int bigMatrix1[2000][2000];
+
+int bigMatrix2[2000][2000];
+ 
+int bigResultMatrix[2000][2000];
+
 int resultMatrix[3][2];
 
 struct argData {
@@ -25,9 +31,9 @@ void* multiplyMatricesParallel(void* ptr) {
     int row = argument->start;
     int endRow = argument->end;
     for (row; row < endRow; row++) {
-        for (int j = 0; j < 2; j++) {
-            for (int k = 0; k < 2; k++) {
-                resultMatrix[row][j] += matrix1[row][k] * matrix2[k][j];
+        for (int j = 0; j < 2000; j++) {
+            for (int k = 0; k < 2000; k++) {
+                bigResultMatrix[row][j] += bigMatrix1[row][k] * bigMatrix2[k][j];
             }
         }
     }
@@ -63,19 +69,32 @@ void multiplyMatrices(int mat1[3][2], int mat2[2][2], int result[3][2]) {
 int main() {
     parallelPatterns parallel;
 
+    
+    for (int i = 0; i < 2000; i++) {
+        for (int j = 0; j < 2000; j++) {
+            bigMatrix1[i][j] = 42;
+        }
+    }
+
+    for (int i = 0; i < 2000; i++) {
+        for (int j = 0; j < 2000; j++) {
+            bigMatrix2[i][j] = 42;
+        }
+    }
+
 
     //multiplyMatrices(matrix1, matrix2, resultMatrix);
-    parallel.parallelFor2D(3, multiplyMatricesParallel);
+    parallel.parallelFor2D(2000, multiplyMatricesParallel);
     //tbb::parallel_for(tbb::blocked_range<int>(0, 3), MatrixMultiplierTBB());
 
 
     std::cout << "Resultant Matrix:\n";
-    for (int i = 0; i < 3; i++) {
+    /*for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 2; j++) {
             std::cout << resultMatrix[i][j] << " ";
         }
         std::cout << "\n";
-    }
+    }*/
 
     return 0;
 }
