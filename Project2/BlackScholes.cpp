@@ -26,7 +26,7 @@
 
 #define fptype float
 
-#define NUM_RUNS 200000
+#define NUM_RUNS 1000000
 
 using namespace std::chrono;
 
@@ -373,7 +373,7 @@ int main(int argc, char** argv)
     auto start = high_resolution_clock::now();
     
     #ifdef TBB
-        tbb::parallel_for(tbb::blocked_range<int>(0, 1000, 250), calculatePricesTBB());
+        tbb::parallel_for(tbb::blocked_range<int>(0, 1000, 100), calculatePricesTBB());
     #else
     #ifdef PARALLEL
         pattern.parallelFor(1000, &calculatePrices);

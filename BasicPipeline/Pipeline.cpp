@@ -18,8 +18,8 @@ pthread_cond_t mutex_stage2output_cond = PTHREAD_COND_INITIALIZER;
 
 parallelPatterns pattern;
 
-int startArray[10] = { 1,2,3,4,5,6,7,8,9,10 };
-int endArray[10];
+int startArray[11] = { 1,2,3,4,5,6,7,8,9,10,-1 };
+int endArray[11];
 
 
 int function1(int data) {
@@ -34,6 +34,13 @@ int function3(int data) {
 	int result = data + 1;
 	return result;
 }
+int function4(int data) {
+	int result = 0;
+	for (int i = 0; i < data; i++) {
+		result = result + i;
+	}
+	return data;
+}
 
 void printArray(){
 	for (int i = 0; i < 10; i++) {
@@ -47,13 +54,16 @@ void printArray(){
 
 
 int main() {
-	int (*func[])(int) = { function1, function2, function3 };
+	//int (*func[])(int) = { function1, function2, function3 };
+	int (*func[])(int) = { function4, function4, function4, function4 };
 	queue<int> start;
 	queue<int> end;
-	for (int i = 0; i < 10; i++) {
-		start.push(startArray[i]);
+	for (int i = 0; i < 100000; i++) {
+		start.push(i);
 	}
-	pattern.pipelineMain(func, start, end, 10);
+	start.push(-1);
+	pattern.pipelineMain(func, start, &end);
+	
 
 	return 0;
 }
