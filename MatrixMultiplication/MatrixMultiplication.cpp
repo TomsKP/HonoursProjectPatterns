@@ -1,6 +1,8 @@
 #include <iostream>
 #include "projectPattern.h"
 #include "tbb/tbb.h"
+#include <chrono>
+using namespace std::chrono;
 
 int matrix1[3][2] = { {1, 2},
                       {3, 4},
@@ -9,11 +11,11 @@ int matrix1[3][2] = { {1, 2},
 int matrix2[2][2] = { {7, 8},
                       {9, 10} };
 
-int bigMatrix1[2000][2000];
+int bigMatrix1[3000][3000];
 
-int bigMatrix2[2000][2000];
+int bigMatrix2[3000][3000];
  
-int bigResultMatrix[2000][2000];
+int bigResultMatrix[3000][3000];
 
 int resultMatrix[3][2];
 
@@ -31,8 +33,8 @@ void* multiplyMatricesParallel(void* ptr) {
     int row = argument->start;
     int endRow = argument->end;
     for (row; row < endRow; row++) {
-        for (int j = 0; j < 2000; j++) {
-            for (int k = 0; k < 2000; k++) {
+        for (int j = 0; j < 3000; j++) {
+            for (int k = 0; k < 3000; k++) {
                 bigResultMatrix[row][j] += bigMatrix1[row][k] * bigMatrix2[k][j];
             }
         }
@@ -47,9 +49,9 @@ class MatrixMultiplierTBB {
 public:
     void operator()(const tbb::blocked_range<int>& r) const {
         for (int row = r.begin(); row != r.end(); row++) {
-            for (int i = 0; i < 2; i++) {
-                for (int j = 0; j < 2; j++) {
-                    resultMatrix[row][i] += matrix1[row][j] * matrix2[j][i];
+            for (int i = 0; i < 3000; i++) {
+                for (int j = 0; j < 3000; j++) {
+                    bigResultMatrix[row][i] += bigMatrix1[row][j] * bigMatrix2[j][i];
                 }
             }
         }
@@ -70,28 +72,32 @@ int main() {
     parallelPatterns parallel;
 
     
-    for (int i = 0; i < 2000; i++) {
-        for (int j = 0; j < 2000; j++) {
+    for (int i = 0; i < 3000; i++) {
+        for (int j = 0; j < 3000; j++) {
             bigMatrix1[i][j] = 42;
         }
     }
 
-    for (int i = 0; i < 2000; i++) {
-        for (int j = 0; j < 2000; j++) {
+    for (int i = 0; i < 3000; i++) {
+        for (int j = 0; j < 3000; j++) {
             bigMatrix2[i][j] = 42;
         }
     }
 
-
+    auto start = high_resolution_clock::now();
     //multiplyMatrices(matrix1, matrix2, resultMatrix);
-    parallel.parallelFor2D(2000, multiplyMatricesParallel);
+    parallel.parallelFor2D(3000, multiplyMatricesParallel);
     //tbb::parallel_for(tbb::blocked_range<int>(0, 3), MatrixMultiplierTBB());
 
+    auto stop = high_resolution_clock::now();
+    auto duration = duration_cast<seconds>(stop - start);
+    std::cout << duration.count() << std::endl;
 
-    std::cout << "Resultant Matrix:\n";
-    /*for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 2; j++) {
-            std::cout << resultMatrix[i][j] << " ";
+
+    /*std::cout << "Resultant Matrix:\n";
+    for (int i = 0; i < 2000; i++) {
+        for (int j = 0; j < 2000; j++) {
+            std::cout << bigResultMatrix[i][j] << " ";
         }
         std::cout << "\n";
     }*/
