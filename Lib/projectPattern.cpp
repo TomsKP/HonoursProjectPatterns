@@ -6,7 +6,7 @@
 
 
 
-#define NUM_THREADS 8
+#define NUM_THREADS 4
 	
 using namespace std;
 
