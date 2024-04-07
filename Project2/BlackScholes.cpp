@@ -373,7 +373,7 @@ int main(int argc, char** argv)
     auto start = high_resolution_clock::now();
     
     #ifdef TBB
-        tbb::parallel_for(tbb::blocked_range<int>(0, 1000, 100), calculatePricesTBB());
+        tbb::parallel_for(tbb::blocked_range<int>(0, 1000, 500), calculatePricesTBB());
     #else
     #ifdef PARALLEL
         pattern.parallelFor(1000, &calculatePrices);
